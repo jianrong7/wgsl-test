@@ -1,29 +1,19 @@
-export async function example1(){
-  var start = Date.now();
-  if (!("gpu" in navigator)) {
-    console.log("WebGPU is not supported. Enable chrome://flags/#enable-unsafe-webgpu flag.");
-    return;
-  }
+import initDevice from "./initDevice";
 
-  const adapter = await navigator.gpu.requestAdapter();
-  if (!adapter) {
-    console.log("Failed to get GPU adapter.");
-    return;
-  }
-  const device = await adapter.requestDevice();
+export async function example1() {
+  var start = Date.now();
+  const device = await initDevice();
 
   const N = 10;
   const M = 10;
   const C = 2;
 
-  const size = new Int32Array([
-    N, M, C
-  ]);
+  const size = new Int32Array([N, M, C]);
 
   const gpuBufferIn = device.createBuffer({
     mappedAtCreation: true,
     size: size.byteLength,
-    usage: GPUBufferUsage.STORAGE
+    usage: GPUBufferUsage.STORAGE,
   });
   const arrayBufferIn = gpuBufferIn.getMappedRange();
 
@@ -35,9 +25,8 @@ export async function example1(){
   const resultBufferSize = Float32Array.BYTES_PER_ELEMENT * (N * M * C);
   const resultBuffer = device.createBuffer({
     size: resultBufferSize,
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
   });
-
 
   // Compute shader code
 
@@ -59,19 +48,18 @@ export async function example1(){
         let index = z + y * Z + x * Y * Z;
         result[index] = pow(f32(x), pow(f32(y), f32(z)));
       }
-    `
+    `,
   });
-  
+
   // Pipeline setup
-  
+
   const computePipeline = device.createComputePipeline({
     layout: "auto",
     compute: {
       module: shaderModule,
-      entryPoint: "main"
-    }
+      entryPoint: "main",
+    },
   });
-
 
   // Bind group
 
@@ -81,23 +69,21 @@ export async function example1(){
       {
         binding: 0,
         resource: {
-          buffer: gpuBufferIn
-        }
+          buffer: gpuBufferIn,
+        },
       },
       {
         binding: 1,
         resource: {
-          buffer: resultBuffer
-        }
-      }
-    ]
+          buffer: resultBuffer,
+        },
+      },
+    ],
   });
-  
 
   // Commands submission
 
   const commandEncoder = device.createCommandEncoder();
-
 
   const passEncoder = commandEncoder.beginComputePass();
   passEncoder.setPipeline(computePipeline);
@@ -108,7 +94,7 @@ export async function example1(){
   // Get a GPU buffer for reading in an unmapped state.
   const gpuReadBuffer = device.createBuffer({
     size: resultBufferSize,
-    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   });
 
   // Encode commands for copying buffer to buffer.
@@ -124,29 +110,28 @@ export async function example1(){
   const gpuCommands = commandEncoder.finish();
   device.queue.submit([gpuCommands]);
 
-
   // Read buffer.
   await gpuReadBuffer.mapAsync(GPUMapMode.READ);
   const arrayBuffer = gpuReadBuffer.getMappedRange();
-  console.log("exp1 gpu: ", new Float32Array(arrayBuffer));
+  // console.log("exp1 gpu: ", new Float32Array(arrayBuffer));
   var end = Date.now();
-  console.log("exp1 gpu runtime: ", end - start);
+  // console.log("exp1 gpu runtime: ", end - start);
   return end - start;
-};
+}
 
 export async function example1cpu() {
   var start = Date.now();
-  var result = new Array;
-  for(var i = 0; i < 10; i ++) {
-    result[i] = new Array;
-    for(var j = 0; j < 10; j ++) {
-      result[i][j] = new Array;
-      for (var k = 0; k < 2; k ++) {
+  var result = new Array();
+  for (var i = 0; i < 10; i++) {
+    result[i] = new Array();
+    for (var j = 0; j < 10; j++) {
+      result[i][j] = new Array();
+      for (var k = 0; k < 2; k++) {
         result[i][j][k] = Math.pow(i, Math.pow(j, k));
       }
     }
   }
-  console.log("exp1 cpu: ", result);
+  // console.log("exp1 cpu: ", result);
   var end = Date.now();
   return end - start;
 }
