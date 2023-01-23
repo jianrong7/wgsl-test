@@ -1,6 +1,7 @@
 import styles from "@/styles/Home.module.css";
-import { example1, example1cpu } from "@/utils/example";
-import { example2, example2cpu } from "@/utils/matrixMul";
+// import { example1, example1cpu } from "@/utils/example";
+// import { example2, example2cpu } from "@/utils/matrixMul";
+import { matrixMulCpu, matrixMulGpu } from "@/utils/matrixMul2";
 import { useState, useEffect } from "react";
 
 export default function Home() {
@@ -14,8 +15,8 @@ export default function Home() {
       let responses = await Promise.all([
         // example1(),
         // example1cpu(),
-        example2(),
-        example2cpu(),
+        matrixMulGpu(),
+        matrixMulCpu(),
       ]);
       // const res = (await example1()) as number;
       // setRuntimegpuE1(res);
