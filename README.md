@@ -4,6 +4,6 @@ In the project directory, run:
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-
+Please enable `chrome://flags/#enable-unsafe-webgpu flag`
 
 
