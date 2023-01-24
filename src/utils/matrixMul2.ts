@@ -6,17 +6,15 @@ export async function matrixMulGpu() {
   const device = await initDevice();
   const start = performance.now();
   const first = [LENGTH_CONST, LENGTH_CONST];
-  for (var i = 0; i < LENGTH_CONST; i++) {
-    for (var j = 0; j < LENGTH_CONST; j++) {
-      first[2 + i * LENGTH_CONST + j] = i + j;
-    }
+  for (let i = 0; i < LENGTH_CONST * LENGTH_CONST; i++) {
+    first[2 + i] = i;
   }
+
   const second = [LENGTH_CONST, LENGTH_CONST];
-  for (var i = 0; i < LENGTH_CONST; i++) {
-    for (var j = 0; j < LENGTH_CONST; j++) {
-      second[2 + i * LENGTH_CONST + j] = i + j;
-    }
+  for (let i = 0; i < LENGTH_CONST * LENGTH_CONST; i++) {
+    second[2 + i] = i;
   }
+
   const firstMatrix = new Float32Array(first);
   const secondMatrix = new Float32Array(second);
 
@@ -120,39 +118,40 @@ export async function matrixMulGpu() {
   // Read buffer.
   await gpuReadBuffer.mapAsync(GPUMapMode.READ);
   const arrayBuffer = gpuReadBuffer.getMappedRange();
-  // console.log("gpu:", new Float32Array(arrayBuffer));
   const end = performance.now();
-  return end - start;
+  return {
+    runtime: end - start,
+    matrix: Array.from(new Float32Array(arrayBuffer)),
+  };
 }
 
 export async function matrixMulCpu() {
   const start = performance.now();
   const firstMatrix = [LENGTH_CONST, LENGTH_CONST];
-  for (var i = 0; i < LENGTH_CONST; i++) {
-    for (var j = 0; j < LENGTH_CONST; j++) {
+  for (let i = 0; i < LENGTH_CONST; i++) {
+    for (let j = 0; j < LENGTH_CONST; j++) {
       firstMatrix[2 + i * LENGTH_CONST + j] = i + j;
     }
   }
   const secondMatrix = [LENGTH_CONST, LENGTH_CONST];
-  for (var i = 0; i < LENGTH_CONST; i++) {
-    for (var j = 0; j < LENGTH_CONST; j++) {
+  for (let i = 0; i < LENGTH_CONST; i++) {
+    for (let j = 0; j < LENGTH_CONST; j++) {
       secondMatrix[2 + i * LENGTH_CONST + j] = i + j;
     }
   }
 
   const result = new Array();
-  for (var i = 0; i < LENGTH_CONST; i++) {
+  for (let i = 0; i < LENGTH_CONST; i++) {
     result[i] = new Array();
-    for (var j = 0; j < LENGTH_CONST; j++) {
+    for (let j = 0; j < LENGTH_CONST; j++) {
       result[i][j] = 0;
-      for (var k = 0; k < firstMatrix[1]; k++) {
+      for (let k = 0; k < firstMatrix[1]; k++) {
         result[i][j] +=
           firstMatrix[2 + i * LENGTH_CONST + k] *
           secondMatrix[2 + k * LENGTH_CONST + j];
       }
     }
   }
-  console.log("exp2 cpu: ", result);
   const end = performance.now();
-  return end - start;
+  return { runtime: end - start, matrix: result };
 }
