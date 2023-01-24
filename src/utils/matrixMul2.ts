@@ -3,6 +3,8 @@ import matrixMul2WGSL from "@/wgsl/matrixMul2.wgsl";
 const LENGTH_CONST = 512;
 
 export async function matrixMulGpu() {
+  const device = await initDevice();
+  const start = performance.now();
   const first = [LENGTH_CONST, LENGTH_CONST];
   for (var i = 0; i < LENGTH_CONST; i++) {
     for (var j = 0; j < LENGTH_CONST; j++) {
@@ -17,10 +19,6 @@ export async function matrixMulGpu() {
   }
   const firstMatrix = new Float32Array(first);
   const secondMatrix = new Float32Array(second);
-
-  const start = performance.now();
-
-  const device = await initDevice();
 
   const gpuBufferFirstMatrix = device.createBuffer({
     mappedAtCreation: true,
