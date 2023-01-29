@@ -1,3 +1,43 @@
+## Format of the input array
+```
+prefix expression
+type1 element1 type2 element2 type3 element3 ...
+```
+
+## Compile Rule (updating)
+```
+type:
+0 name
+1 literal
+2 binary operator
+3 unitary operator
+4 built-in function
+
+element:
+name:
+0 the only parameter in the lambda expression
+
+literal:
+x x
+
+binary operator:
+0 +
+1 - 
+2 *
+3 /
+
+unitary operator:
+0 -
+
+built-in function:
+0 abs
+1 sin
+2 cos
+3 min
+4 max
+5 
+```
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
