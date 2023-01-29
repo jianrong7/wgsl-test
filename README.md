@@ -1,6 +1,6 @@
 ## Format of the input array
 ```
-prefix expression
+postfix expression
 type1 element1 type2 element2 type3 element3 ...
 ```
 
