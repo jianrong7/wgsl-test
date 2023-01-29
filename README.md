@@ -41,7 +41,7 @@ built-in function:
 ## Example
 ```
 "t => Math_sin(2 * Math_PI * 440 * t)" will be parsed into
-[4, 1, 2, 2, 2, 2, 2, 2, 1, 2, 1, 3.1416, 1, 440, 0, 0]
+[1, 2, 1, 3.1416, 2, 2, 1, 440, 2, 2, 0, 0, 2, 2, 4, 1]
 ```
 
 
