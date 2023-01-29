@@ -7,7 +7,7 @@ type1 element1 type2 element2 type3 element3 ...
 ## Compile Rule (updating)
 ```
 type:
-0 name
+0 variable name
 1 literal
 2 binary operator
 3 unitary operator
