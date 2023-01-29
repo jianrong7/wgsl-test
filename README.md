@@ -38,6 +38,13 @@ built-in function:
 5 
 ```
 
+## Example
+```
+"t => Math_sin(2 * Math_PI * 440 * t)" will be parsed into
+[4, 1, 2, 2, 2, 2, 2, 2, 1, 2, 1, 3.1416, 1, 440, 0, 0]
+```
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
