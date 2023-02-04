@@ -5,8 +5,28 @@ export async function compiler() {
   const device = await initDevice();
   const time = 10;
   const fs = 200;
-  var inp = [time, fs, 16, 1, 2, 1, 3.1416, 2, 2, 1, 440, 2, 2, 0, 0, 2, 2, 4, 1];
-  for (var i = inp.length; i < 203; i++) {
+  let inp = [
+    time,
+    fs,
+    16,
+    1,
+    2,
+    1,
+    3.1416,
+    2,
+    2,
+    1,
+    440,
+    2,
+    2,
+    0,
+    0,
+    2,
+    2,
+    4,
+    1,
+  ];
+  for (let i = inp.length; i < 203; i++) {
     inp[i] = 0;
   }
   const start = performance.now();
@@ -22,9 +42,8 @@ export async function compiler() {
   new Float32Array(arrayBufferInput).set(input);
   gpuBufferInput.unmap();
 
-
   const resultBufferSize =
-    Float32Array.BYTES_PER_ELEMENT * (Math.ceil(time * fs / 256) * 256);
+    Float32Array.BYTES_PER_ELEMENT * (Math.ceil((time * fs) / 256) * 256);
   const resultBuffer = device.createBuffer({
     size: resultBufferSize,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
@@ -69,7 +88,7 @@ export async function compiler() {
   const passEncoder = commandEncoder.beginComputePass();
   passEncoder.setPipeline(computePipeline);
   passEncoder.setBindGroup(0, bindGroup);
-  const workgroupCountX = Math.ceil(time * fs / 256);
+  const workgroupCountX = Math.ceil((time * fs) / 256);
   passEncoder.dispatchWorkgroups(workgroupCountX);
   passEncoder.end();
 

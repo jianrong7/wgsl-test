@@ -1,18 +1,15 @@
 import initDevice from "./initDevice";
 import matrixMul2WGSL from "@/wgsl/matrixMul2.wgsl";
-const LENGTH_CONST = 512;
-const LENGTH_CONST_2 = 2;
 
-export async function matrixMulGpu() {
+export default async function multiplyMatrixInterp(f, s) {
   const device = await initDevice();
-  const start = performance.now();
-  const first = [LENGTH_CONST_2, LENGTH_CONST_2];
-  for (let i = 0; i < LENGTH_CONST_2 * LENGTH_CONST_2; i++) {
+  const first = [f.length, f[0].length];
+  for (let i = 0; i < f.length * f[0].length; i++) {
     first[2 + i] = i;
   }
 
-  const second = [LENGTH_CONST_2, LENGTH_CONST_2];
-  for (let i = 0; i < LENGTH_CONST_2 * LENGTH_CONST_2; i++) {
+  const second = [s.length, s[0].length];
+  for (let i = 0; i < s.length * s[0].length; i++) {
     second[2 + i] = i;
   }
 
@@ -53,7 +50,7 @@ export async function matrixMulGpu() {
     layout: "auto",
     compute: {
       module: device.createShaderModule({
-        code: `struct Matrix{size : vec2<f32>,numbers: array<f32>,}@group(0)@binding(0)var<storage,read>firstMatrix:Matrix;@group(0)@binding(1)var<storage,read>secondMatrix:Matrix;@group(0) @binding(2) var<storage, read_write> resultMatrix : Matrix;@compute @workgroup_size(16, 16)fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {if (global_id.x >= u32(firstMatrix.size.x) || global_id.y >= u32(secondMatrix.size.y)) {return;}resultMatrix.size = vec2(firstMatrix.size.x, secondMatrix.size.y);let resultCell = vec2(global_id.x, global_id.y);var result = 0.0;for (var i = 0u; i < u32(firstMatrix.size.y); i = i + 1u) {let a = i + resultCell.x * u32(firstMatrix.size.y);let b = resultCell.y + i * u32(secondMatrix.size.y);result = result + firstMatrix.numbers[a] * secondMatrix.numbers[b];}let index = resultCell.y + resultCell.x * u32(secondMatrix.size.y);resultMatrix.numbers[index] = result;}`,
+        code: matrixMul2WGSL,
       }),
       entryPoint: "main",
     },
@@ -119,40 +116,6 @@ export async function matrixMulGpu() {
   // Read buffer.
   await gpuReadBuffer.mapAsync(GPUMapMode.READ);
   const arrayBuffer = gpuReadBuffer.getMappedRange();
-  const end = performance.now();
-  return {
-    runtime: end - start,
-    matrix: Array.from(new Float32Array(arrayBuffer)),
-  };
-}
-
-export async function matrixMulCpu() {
-  const start = performance.now();
-  const firstMatrix = [LENGTH_CONST, LENGTH_CONST];
-  for (let i = 0; i < LENGTH_CONST; i++) {
-    for (let j = 0; j < LENGTH_CONST; j++) {
-      firstMatrix[2 + i * LENGTH_CONST + j] = i + j;
-    }
-  }
-  const secondMatrix = [LENGTH_CONST, LENGTH_CONST];
-  for (let i = 0; i < LENGTH_CONST; i++) {
-    for (let j = 0; j < LENGTH_CONST; j++) {
-      secondMatrix[2 + i * LENGTH_CONST + j] = i + j;
-    }
-  }
-
-  const result = new Array();
-  for (let i = 0; i < LENGTH_CONST; i++) {
-    result[i] = new Array();
-    for (let j = 0; j < LENGTH_CONST; j++) {
-      result[i][j] = 0;
-      for (let k = 0; k < firstMatrix[1]; k++) {
-        result[i][j] +=
-          firstMatrix[2 + i * LENGTH_CONST + k] *
-          secondMatrix[2 + k * LENGTH_CONST + j];
-      }
-    }
-  }
-  const end = performance.now();
-  return { runtime: end - start, matrix: result };
+  console.log("RESULT:", Array.from(new Float32Array(arrayBuffer)));
+  return Array.from(new Float32Array(arrayBuffer));
 }
