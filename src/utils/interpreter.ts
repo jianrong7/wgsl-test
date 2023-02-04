@@ -1,5 +1,6 @@
 import initDevice from "./initDevice";
 import matrixMul2WGSL from "@/wgsl/matrixMul2.wgsl";
+import splitArray from "./splitArray";
 
 export default async function multiplyMatrixInterp(f, s) {
   const device = await initDevice();
@@ -116,6 +117,8 @@ export default async function multiplyMatrixInterp(f, s) {
   // Read buffer.
   await gpuReadBuffer.mapAsync(GPUMapMode.READ);
   const arrayBuffer = gpuReadBuffer.getMappedRange();
-  console.log("RESULT:", Array.from(new Float32Array(arrayBuffer)));
-  return Array.from(new Float32Array(arrayBuffer));
+  return splitArray(
+    Array.from(new Float32Array(arrayBuffer)).slice(2),
+    Array.from(new Float32Array(arrayBuffer))[0]
+  );
 }

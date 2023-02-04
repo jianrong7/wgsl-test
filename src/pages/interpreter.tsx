@@ -1,5 +1,6 @@
 import styles from "@/styles/Interpreter.module.css";
 import generateWgsl from "@/utils/generateWgsl";
+import splitArray from "@/utils/splitArray";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -7,13 +8,14 @@ import { useForm } from "react-hook-form";
 export default function Interpreter() {
   const { register, handleSubmit } = useForm();
   const [usedGpu, setUsedGpu] = useState(false);
-  const [resultMatrix, setResultMatrix] = useState([0, 0]);
+  const [resultMatrix, setResultMatrix] = useState([[]]);
   const onSubmit = handleSubmit(async (data) => {
     setUsedGpu(await generateWgsl(data?.code, setResultMatrix));
   });
 
   useEffect(() => {
     console.log(resultMatrix);
+    // console.log(splitArray(resultMatrix.slice(2), resultMatrix[0]));
   }, [resultMatrix]);
 
   return (
@@ -38,7 +40,15 @@ export default function Interpreter() {
           <h2>WGSL Output</h2>
           <p>Did it use the GPU? {usedGpu ? "Yes" : "No"}</p>
           <p>
-            Result {resultMatrix && resultMatrix.map((x) => <span>{x}</span>)}
+            Result{" "}
+            {resultMatrix &&
+              resultMatrix.map((x, i) => (
+                <div key={i}>
+                  {x.map((y, j) => (
+                    <span key={j}>{y} </span>
+                  ))}
+                </div>
+              ))}
           </p>
         </div>
       </main>
